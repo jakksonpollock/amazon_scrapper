@@ -108,3 +108,50 @@ Celery Beat is used for scheduling tasks. In another new terminal, run:
 ```bash
 celery -A amazon_scrapper beat --loglevel=info
 ```
+
+# Web Scraping Implementation
+
+## Overview
+
+This project uses requests and BeautifulSoup to scrape product data from Amazon for a specified brand. Scraped data includes product name, ASIN, SKU, and image URL. The scraper is set up to:
+
+- Handle pagination on Amazon’s results pages.
+- Parse the required data from each result page.
+- Handle any CAPTCHA or rate-limit issues.
+
+## Anti-Scraping Measures
+
+To avoid being blocked by Amazon’s anti-scraping mechanisms, we implement:
+
+- Randomized User-Agent rotation: Requests use randomly chosen user-agents to simulate different browsers.
+- Randomized delays: Each request has a random delay to reduce detection risk.
+- Retry logic: If CAPTCHA or rate limits are encountered, the scraper will retry the request with a delay.
+
+## Key Files
+
+- `scraper.py`: Contains the core scraping logic.
+- `tasks.py`: Contains Celery tasks to handle scraping periodically.
+- `celery.py`: Initializes Celery and configures periodic tasks.
+
+## Assumptions and Design Decisions
+
+1.  **Scraping Frequency:**
+
+    - Tasks are set to run four times a day to update product information regularly.
+    - The interval can be adjusted in the Django Admin under Periodic Tasks.
+
+2.  **Data Storage:**
+
+    - Product information is stored in a Django model, with fields for name, ASIN, SKU, image URL, and a foreign key to the associated brand.
+    - If a product already exists in the database, the scraper updates its information.
+
+3.  **Pagination Handling:**
+
+    - The scraper iterates through search result pages for each brand until no further products are found or a maximum number of pages is reached.
+
+4.  **Error Handling:**
+
+    - We assume that network errors, CAPTCHA, and rate limits might occur during scraping. The scraper retries failed requests and logs errors if all attempts fail.
+
+5.  **Celery and Redis Setup:**
+    - We assume Redis is running locally. Redis is used for both Celery's broker and result backend, but these settings can be modified if another broker is preferred.
