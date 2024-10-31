@@ -8,7 +8,6 @@ This is a Django project configured with Celery for background task processing, 
 - Redis
 - Virtual environment (optional, but recommended)
 
----
 
 ## Table of Contents
 
@@ -17,7 +16,6 @@ This is a Django project configured with Celery for background task processing, 
 - [Running the Project](#running-the-project)
 - [Celery Commands](#celery-commands)
 
----
 
 ## Installation
 
